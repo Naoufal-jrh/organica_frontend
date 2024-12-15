@@ -31,9 +31,9 @@ export const Router = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/singup" element={<Singup />} />
         <Route path="/checkout" element={
-        <Protected isSignedIn={isSignedIn}>
-        <CheckOut />
-      </Protected>
+          <Protected isSignedIn={isSignedIn}>
+            <CheckOut />
+          </Protected>
         } />
       </Routes>
     </>
