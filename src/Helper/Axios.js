@@ -1,4 +1,6 @@
 import axios from "axios";
+
+
 const axiosFetch = async ({ url, method, data = null }) => {
   //api to fetch data from postman mock server
   try {
