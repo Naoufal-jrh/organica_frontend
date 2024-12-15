@@ -10,7 +10,7 @@ export const Singup = () => {
     confirmPassword: "",
   });
   const onToast = (s) => {
-    if ('Login Successfull!!' === s) {
+    if ('Signup Successful!' === s) {
       toast.success(s, {
         position: "top-center",
         autoClose: 5000,
@@ -20,8 +20,8 @@ export const Singup = () => {
         draggable: true,
         progress: undefined,
         theme: "light",
-        });
-    }else{
+      });
+    } else {
       toast.error(s, {
         position: "top-center",
         autoClose: 5000,
@@ -31,41 +31,61 @@ export const Singup = () => {
         draggable: true,
         progress: undefined,
         theme: "light",
-        });
+      });
     }
   }
 
   const handleSinup = async (e) => {
-    window.location.href = "/login";
     e.preventDefault();
-    if (user.password === user.confirmPassword) {
-      const res = await fetch("http://localhost:8080/auth/singup", {
+
+    if (!user.name || !user.email || !user.password || !user.confirmPassword) {
+      onToast("Please fill in all fields!");
+      return;
+    }
+
+    if (user.password.length < 6) {
+      onToast("Password must be at least 6 characters long!");
+      return;
+    }
+
+    if (user.password !== user.confirmPassword) {
+      onToast("Passwords do not match!");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8080/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          ...user,
-        }),
+        body: JSON.stringify(user),
       });
-      const data = await res.json();
-      if (res.status === 200) {
-        onToast("Singup Successfull!!")
-        setTimeout(() => {
-          window.location.href = "/login";
-        }, 2000);
-      } else {
 
-          onToast("Something went wrong!!")
-
-
+      if (!res.ok) {
+        let errorMessage = "Something went wrong!";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (err) {
+          console.error("Error parsing JSON response:", err);
+        }
+        onToast(errorMessage);
+        return;
       }
-      console.log(data);
-    }else{
-      onToast("Password not match!!")
+
+      const data = await res.json();
+      onToast("Signup Successful!");
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 5000);
+    } catch (error) {
+      console.error("Error during signup:", error);
+      onToast("Failed to connect to the server.");
     }
 
   };
+
 
   return (
     <>
@@ -173,7 +193,7 @@ export const Singup = () => {
             style={{ marginTop: 10 }}
             required=""
             placeholder="Confirm Password"
-            onChange={(e) =>setUser({ ...user, confirmPassword: e.target.value })}
+            onChange={(e) => setUser({ ...user, confirmPassword: e.target.value })}
             value={user.confirmPassword}
             name="confirmPassword"
             minLength={6}
@@ -186,7 +206,7 @@ export const Singup = () => {
             type="submit"
             onClick={(e) => handleSinup(e)}
           >
-            Sing Up
+            Sign Up
           </button>
           <div className="d-flex justify-content-between">
             <div
